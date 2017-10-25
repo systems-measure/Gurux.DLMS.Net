@@ -809,7 +809,17 @@ namespace Gurux.DLMS.Internal
                 else //Use current time if deviation is not defined.
                 {
                     dt.Skip |= DateTimeSkips.Deviation;
-                    DateTime tmp = new DateTime(year, month, day, hours, minutes, seconds, milliseconds, DateTimeKind.Local);
+                    DateTime tmp = new DateTime();
+
+                    if (hours == 24)
+                    {
+                        tmp = new DateTime(year, month, day, 0, 0, 0, 0, DateTimeKind.Local);
+                        tmp.AddDays(1);
+                    }
+                    else
+                    {
+                        tmp = new DateTime(year, month, day, hours, minutes, seconds, milliseconds, DateTimeKind.Local);
+                    }
                     dt.Value = new DateTimeOffset(tmp, TimeZoneInfo.Local.GetUtcOffset(tmp));
                 }
             }

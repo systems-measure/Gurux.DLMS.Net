@@ -52,7 +52,7 @@ namespace Gurux.DLMS
     /// <summary>
     /// GXDLMS implements methods to communicate with DLMS/COSEM metering devices.
     /// </summary>
-    sealed class GXDLMS
+    public sealed class GXDLMS
     {
         const byte CipheringHeaderSize = 7 + 12 + 3;
         internal const int DATA_TYPE_OFFSET = 0xFF0000;
@@ -784,6 +784,12 @@ namespace Gurux.DLMS
             do
             {
                 GetLNPdu(p, reply);
+
+                if (p.data != null && p.multipleBlocks)
+                {
+                    frame = p.settings.NextSend(true);
+                }
+
                 p.lastBlock = true;
                 if (p.attributeDescriptor == null)
                 {
@@ -804,8 +810,7 @@ namespace Gurux.DLMS
                         messages.Add(GXDLMS.GetHdlcFrame(p.settings, frame, reply));
                         if (reply.Position != reply.Size)
                         {
-                            if (p.settings.IsServer || p.command == Command.SetRequest ||
-                                 p.command == Command.MethodRequest)
+                            if (p.settings.IsServer)
                             {
                                 frame = 0;
                             }
@@ -1207,7 +1212,7 @@ namespace Gurux.DLMS
         /// <param name="frame">Frame ID. If zero new is generated.</param>
         /// <param name="data">Data to add.</param>
         /// <returns>HDLC frames.</returns>
-        internal static byte[] GetHdlcFrame(GXDLMSSettings settings, byte frame, GXByteBuffer data)
+        public static byte[] GetHdlcFrame(GXDLMSSettings settings, byte frame, GXByteBuffer data)
         {
             GXByteBuffer bb = new GXByteBuffer();
             int frameSize, len = 0;
